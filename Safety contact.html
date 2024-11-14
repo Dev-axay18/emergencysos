@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Safety Contacts</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f7f8fa;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #ffffff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            width: 300px;
+            text-align: center;
+        }
+
+        .add-contact-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .add-contact-button:hover {
+            background-color: #45a049;
+        }
+
+        .contact-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 10px 0;
+        }
+
+        .contact-list li {
+            padding: 10px;
+            margin-bottom: 5px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+        }
+
+        #contactForm {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        input[type="text"] {
+            padding: 10px;
+            width: 80%;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+
+        #addContactBtn {
+            background-color: #f44336;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        #addContactBtn:hover {
+            background-color: #d32f2f;
+        }
+
+        #proceedBtn {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        #proceedBtn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Add Safety Contacts</h1>
+        <button class="add-contact-button" onclick="showContactForm()">+ Add Contact</button>
+
+        <form id="contactForm" onsubmit="return addContact();">
+            <input type="text" id="contactInput" placeholder="Enter Safety Contact" maxlength="10" required>
+            <button type="submit" id="addContactBtn">Add Contact</button>
+        </form>
+
+        <ul id="contactList" class="contact-list"></ul>
+        <button id="proceedBtn" onclick="window.location.href='Dashboard.html'">Proceed</button>
+    </div>
+
+    <script>
+        let contacts = [];
+
+        // Function to show the contact form
+        function showContactForm() {
+            const form = document.getElementById('contactForm');
+            form.style.display = 'block';
+        }
+
+        // Function to add a contact
+        function addContact() {
+            const contactInput = document.getElementById('contactInput');
+            const contactNumber = contactInput.value.trim();
+
+            if (contactNumber.length === 10 && contacts.length < 5) {
+                const formattedContact = '+91 ' + contactNumber;
+                contacts.push(formattedContact);
+
+                // Update the contact list UI
+                updateContactList();
+                contactInput.value = '';
+                document.getElementById('contactForm').style.display = 'none';
+            } else if (contacts.length >= 5) {
+                alert("You can only add up to 5 contacts.");
+            } else {
+                alert("Please enter a valid 10-digit number.");
+            }
+
+            return false; // Prevent form submission
+        }
+
+        // Function to update the contact list display
+        function updateContactList() {
+            const contactList = document.getElementById('contactList');
+            contactList.innerHTML = ''; // Clear the list
+
+            contacts.forEach((contact, index) => {
+                const li = document.createElement('li');
+                li.textContent = contact;
+                contactList.appendChild(li);
+            });
+        }
+
+        // Function for the proceed button
+        // function proceed() {
+        //     alert('Proceeding to the next step...');
+        // }
+    </script>
+</body>
+</html>

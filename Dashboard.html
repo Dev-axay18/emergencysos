@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emergency Dashboard with OpenLayers</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@7.2.2/ol.css" type="text/css">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+            height: 100%;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: -250px; /* Sidebar is initially hidden */
+            transition: left 0.3s ease;
+            z-index: 100;
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+
+        .menu-toggle {
+            background-color: #333;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            padding: 10px;
+            position: absolute;
+            left: 20px;
+            top: 20px;
+        }
+
+        .close-btn {
+            background-color: #333;
+            border: none;
+            color: white;
+            font-size: 30px;
+            cursor: pointer;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            display: none; /* Initially hidden */
+        }
+
+        .sidebar-content ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar-content ul li {
+            padding: 15px;
+            text-align: center;
+        }
+
+        .sidebar-content ul li a {
+            text-decoration: none;
+            color: white;
+            display: block;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            margin-left: 0;
+            padding: 20px;
+            width: 100%;
+            transition: margin-left 0.3s ease;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        button {
+            padding: 15px;
+            font-size: 16px;
+            background-color: #f44336;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #d32f2f;
+        }
+
+        /* Map container */
+        #map-container {
+            margin-top: 20px;
+            width: 100%;
+            height: 400px;
+            background-color: lightgray; /* Add a gray background to visualize the map area */
+        }
+
+        /* Media Query for Mobile */
+        @media (max-width: 768px) {
+            .sidebar {
+                left: 0;
+                width: 100%;
+                height: 100%;
+            }
+
+            .menu-toggle {
+                left: 20px;
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+
+        /* Styling for when sidebar is open */
+        .sidebar.open {
+            left: 0;
+        }
+
+        .main-content.shift {
+            margin-left: 250px;
+        }
+
+        /* Prevent accidental double clicks */
+        .sidebar.open .close-btn {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hamburger Menu Button -->
+    <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+            <button class="close-btn" onclick="closeSidebar()">&#10006;</button> <!-- Close button -->
+            <h2>My Account</h2>
+        </div>
+        <div class="sidebar-content">
+            <ul>
+                <li><a href="#" onclick="showProfile()">Profile</a></li>
+                <li><a href="#">Settings</a></li>
+                <li><a href="#">Frequently Used</a></li>
+                <li><a href="#">App History</a></li>
+                <li><a href="#">Safety Contacts Added</a></li>
+                <li><a href="#">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content (Dashboard) -->
+    <div class="main-content">
+        <h1>What is your emergency?</h1>
+        <div class="button-container">
+            <button onclick="showNearby('ambulance')">Ambulance</button>
+            <button onclick="showNearby('police')">Police</button>
+            <button onclick="showNearby('cybercell')">Cyber Cell</button>
+            <button onclick="showNearby('traffic')">Traffic Emergency</button>
+            <button onclick="showNearby('fire')">Fire Brigade</button>
+        </div>
+        <div id="map-container">
+            <!-- This will be the area for the map -->
+            <div id="map"></div> <!-- OpenLayers map element -->
+        </div>
+    </div>
+
+    <!-- Internal JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/ol@7.2.2/dist/ol.js"></script>
+    <script>
+        let sidebarOpen = false;
+
+        // Function to toggle sidebar visibility
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const closeBtn = document.querySelector('.close-btn');
+
+            // Toggle the sidebar open/close
+            if (!sidebarOpen) {
+                sidebar.classList.add('open');
+                mainContent.classList.add('shift'); // Shift content to the right
+                sidebarOpen = true;
+            } else {
+                closeSidebar(); // Close the sidebar when clicked again
+            }
+        }
+
+        // Function to close the sidebar
+        function closeSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.querySelector('.main-content');
+            const closeBtn = document.querySelector('.close-btn');
+
+            sidebar.classList.remove('open');
+            mainContent.classList.remove('shift'); // Reset the content position
+            sidebarOpen = false;
+        }
+
+        // Function to display profile (just an alert for now)
+        function showProfile() {
+            alert('Showing user profile');
+        }
+
+        // Initialize the OpenLayers map
+        const map = new ol.Map({
+            target: 'map', // ID of the map container
+            layers: [
+                new ol.layer.Tile({
+                    source: new ol.source.OSM()
+                })
+            ],
+            view: new ol.View({
+                center: ol.proj.fromLonLat([0, 0]), // Initial center (longitude, latitude)
+                zoom: 2
+            })
+        });
+
+        // Get the user's current location and update the map
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(position) {
+                const userLocation = [position.coords.longitude, position.coords.latitude];
+                const userLocationProj = ol.proj.fromLonLat(userLocation);
+                
+                // Center map on user's location
+                map.getView().setCenter(userLocationProj);
+                map.getView().setZoom(14); // Zoom in for better view
+
+                // Add a marker at the user's location
+                const marker = new ol.Feature({
+                    geometry: new ol.geom.Point(userLocationProj)
+                });
+
+                const vectorSource = new ol.source.Vector({
+                    features: [marker]
+                });
+
+                const vectorLayer = new ol.layer.Vector({
+                    source: vectorSource
+                });
+
+                map.addLayer(vectorLayer);
+            });
+        } else {
+            alert("Geolocation is not supported by this browser.");
+        }
+
+        // Function to show nearby services (just an alert for now)
+        function showNearby(serviceType) {
+    // Define the URLs for each emergency service
+    const serviceURLs = {
+        ambulance: 'https://www.google.com/maps/search/hospitals',
+        police: 'https://www.google.com/maps/search/police+stations',
+        cybercell: 'https://www.google.com/search?q=cyber+cell',
+        traffic: 'https://www.google.com/maps/search/traffic+emergency',
+        fire: 'https://www.google.com/maps/search/fire+stations'
+    };
+
+    // Redirect to the corresponding URL
+    if (serviceURLs[serviceType]) {
+        window.location.href = serviceURLs[serviceType];
+    } else {
+        alert("Service not available.");
+    }
+}
+    </script>
+</body>
+</html>
